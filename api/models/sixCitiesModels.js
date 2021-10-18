@@ -32,7 +32,7 @@ class RoutesModel {
         let emptyArr = [];
         return Promise.resolve(emptyArr);
     };
-
+    
 
 }
 export default new RoutesModel();
