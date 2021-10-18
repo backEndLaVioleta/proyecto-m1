@@ -30,7 +30,7 @@ const signUpUser = (req, res, next) =>{
                 next(HttpError(403,{message: 'User already in DDBB'}));
             } else {
                 const result = userModel.createUser(user);
-                res.json(user.username).send(`User created. ${user.username} with an id: ${user.userId}`).status(200);
+                res.json({user:user.username, id: username.userId}).status(200);
             }
 
         }
