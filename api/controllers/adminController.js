@@ -3,8 +3,14 @@ import adminModel from "../models/adminModel.js";
 
 //GET  
 const getList = (req, res, next) =>{
-    const users = adminModel.getAllUsers();
-    res.json((users)).status(200);
+    try {
+        const users = await adminModel.getAllUsers();
+        res.json((users)).status(200);
+
+    } catch (error) {
+        next(HttpError(400, {message:error.message}));
+    }
+    
 };
 
 //POST  
@@ -18,7 +24,7 @@ try {
 
     } else{
 
-    const userRemove= adminModel.getOneUserById(body.userId);
+    const userRemove= await adminModel.getOneUserById(body.userId);
 
     res.json(userRemove).status(200);
     }

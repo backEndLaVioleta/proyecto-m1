@@ -3,7 +3,7 @@ import cities from "../data/cities.js";
 class CitiesModel {
   // GET
   getAllCities() {
-    return cities;
+    return Promise.resolve(cities);
   }
 }
 export default new CitiesModel();
