@@ -4,59 +4,68 @@ import userModel from "../models/userModel.js";
 import routes from "../data/routes.js";
 
 // GET 
-const getSelectedCities = (req, res, next) => {
+const getSelectedCities = async (req, res, next) => {
 
-  const origen      = req.query.origen;
-  const destination = req.query.destination;
+  try {
+    const {origen, destination} = req.query;
 
-  if (!origen || !destination) {
-
-    next(HttpError(400, { message: "Missing city of origin or destination" }));
+    if (!origen || !destination) 
+      next(HttpError(400, { message: "Missing city of origin or destination" }));
+   
+      const routeSelected = await sixCitiesModels.getRouteSelected(origen, destination);
+  
+      (!routeSelected.length) ? next(HttpError(404, {message: "Route not found"})) 
+                              : res.json(routeSelected).status(200);
     
-  } else {
+  } catch (error) {
 
-    const routeSelected = sixCitiesModels.getRouteSelected(origen, destination);
-
-    res.json(routeSelected).status(200);
+    next(HttpError(400, {message: error.message}));
   }
+ 
+  
 };
 
 // GET
-const getUserCityList = (req, res, next) => {
+const getUserCityList = async (req, res, next) => {
   
-  // if params
-  const origen      = req.query.origen;
-  const destination = req.query.destination;
+  const {origen, destination} = req.query;
+   try {
+     // checks with cities
+    if (!origen && !destination) 
+    next(HttpError(400, { message: "No data introduced.Please introduce either origen or destination city or Airport code"}));
 
-  // checks with cities
-  if (!origen && !destination) {
-
-    let showMessageOne = "No data introduced.Please introduce either origen or destination city or Airport code";
-
-    next(HttpError(400, { message: showMessageOne}));
-
-    res.send( showMessageOne)
-       .status(400);
-
-  } else {
-
-    const cityRoutes = sixCitiesModels.getRouteByCityName(origen || destination);
+    if (origen && destination) {
+      const allData = await sixCitiesModels.getRouteSelected(origen, destination);
+      allData.map((el) => userModel.routes.push(el));
+    };
   
-    let showMessageTwo = `No routes available for this city at the moment.`;
-
-    (cityRoutes.length <= 0) ? next(HttpError(404, {message: showMessageTwo}))
-                             : cityRoutes.map((el) => userModel.routes.push(el));
+    if(origen && !destination){
+      const cityOrigen = await sixCitiesModels.getRouteByOrigenCityName(origen);
+      cityOrigen.map((el) => userModel.routes.push(el));
+    };
+    
+    if(destination && !origen){
+      const cityDestination = await sixCitiesModels.getRouteByDestinationCityName(destination);
+      cityDestination.map((el) => userModel.routes.push(el));
+    };
+    
 
     res.json(userModel.routes).status(200);
+  
+  } catch (error) {
+    
+    next(HttpError(400, {message: error.message}));
   };
+
+ 
 
 };
 
 // DELETE
-const deleteAllArrayUser =  (req, res, next) =>{
+const deleteAllArrayUser = async (req, res, next) =>{
 
   try {
-    const removeAll = sixCitiesModels.deleteAllArray();
+    const removeAll = await sixCitiesModels.deleteAllArray();
 
     res.json(removeAll).status(200);
  
@@ -66,7 +75,7 @@ const deleteAllArrayUser =  (req, res, next) =>{
   
 };
 // DELETE
-const removeOneRoute = (req, res, next) => {
+const removeOneRoute = async (req, res, next) => {
 
   try {
   const body = req.body;
@@ -79,8 +88,9 @@ const removeOneRoute = (req, res, next) => {
 
       next(HttpError(400, {message: "Missing data from the route. Please, check airline, departure and arrival cities"}));
     } else {
+
    
-     const deleteRoute = sixCitiesModels.deleteOneRoute(airline, departure, arrival);
+     const deleteRoute = await sixCitiesModels.deleteOneRoute(airline, departure, arrival);
    
      if(deleteRoute == undefined) {
    
@@ -97,9 +107,6 @@ const removeOneRoute = (req, res, next) => {
 
   }
 
- 
-
-
 }
 const getAllRoutesUser = (req, res, next) =>{
 
@@ -111,6 +118,7 @@ const getAllRoutesUser = (req, res, next) =>{
     
   }
 }
+
 export default {
   getSelectedCities,
   getUserCityList,
