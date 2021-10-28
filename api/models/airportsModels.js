@@ -3,7 +3,7 @@ import airports from "../data/airports.js";
 class AirportsModel {
   // GET
   getAllAirports() {
-    return airports;
+    return Promise.resolve(airports);
   }
 }
 

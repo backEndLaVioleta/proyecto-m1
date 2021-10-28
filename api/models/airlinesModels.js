@@ -4,7 +4,7 @@ import airlines from "../data/airlines.js";
 class ArilinesModel {
   // GET
   getAllAirlines() {
-    return airlines;
+    return Promise.resolve(airlines);
   }
 }
 export default new ArilinesModel();

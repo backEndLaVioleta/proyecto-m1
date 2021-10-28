@@ -5,6 +5,7 @@ import authHandler from '../middlewares/authHandler.js';
 const router = Router();
 
 router.route('/signup')
+.post(authHandler.encryptPassword)
 .post(userController.signUpUser);
 
 router.route('/login').post(userController.loginUser);

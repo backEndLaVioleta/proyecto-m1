@@ -4,16 +4,16 @@ class Admin {
 
     getAllUsers(){
         // we take out admin from the array
-        return users;
+        return Promise.resolve(users);
     };
 
     getOneUserById(id){
-        return users.find(element => element.userId ==id);
+        return Promise.resolve(users.find(element => element.userId ==id));
     }
     removeMovie(id){
         const index = users.findIndex(element => element.userId ==id);
         const userremove= users.splice(index,1);
-        return userremove;
+        return Promise.resolve(userremove);
     }
     
 }

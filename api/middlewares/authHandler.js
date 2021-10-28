@@ -1,22 +1,23 @@
 import jwt from 'jsonwebtoken';
 import  HttpError  from 'http-errors';
 import bcrypt from 'bcrypt';
+import userModel from '../models/userModel.js'
 
 // secret word before env
 const SECRET = process.env.SECRET //'robSecret';
 
 const authUser = (req, res, next) => {
     // we get whole token
-    const authorization = req.get('authorization');
+   const token = getTokenFrom(req);
+
+   const decodedToken = verifyToken(token);
 
     // error if we don't have it
     if(!authorization) next(HttpError(401, { message: "No Token Exists"}));
 
-    // leave the seven first strings behind
-    const token = authorization.substring(7);
-
+    const user = userModel.getOneUser({username:decodedToken.username});
     // once we have it , move forward
-    (token) ? next() : next(HttpError(401, { message: 'Invalid token'}));
+    (user == undefined) ? next(HttpError(401, { message: 'Invalid token'})) : next();
 
 };
 
@@ -39,6 +40,8 @@ const encryptPassword = async (req, res, next) => {
         
     }
 };
+ // Decrypt
+ const decryptPassword = (token) => jwt.decode(token);
 
 const getTokenFrom = (req, res, next) => {
 
@@ -70,5 +73,6 @@ authUser,
 encryptPassword,
 generateToken,
 verifyToken,
-getTokenFrom
+getTokenFrom,
+decryptPassword
 }
